@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Axios from "axios";
 import '../styles/App.css';
-import { ToastContainer } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
@@ -12,22 +12,35 @@ function App() {
   const [emailReg, setemailReg] = useState('');
   const [contactheg, setcontactheg] = useState('');
 
-  const register = () => {
-    Axios.post('http://localhost:8080/register',{
+  //READ
+  const showUsers = async () => {
+    const response =  await Axios.get('http://localhost:8080/');
+    setData(response.data);
+  }
+
+  //CREATE
+  const register = async () => {
+    await Axios.post('http://localhost:8080/user',{
       name: nameReg,
       email: emailReg,
       contact: contactheg,
     }).then((response) => {
       console.log(response);
     });
-    showUsers();
+    window.location.reload();
   };
 
-  const showUsers = async () => {
-    const response =  await Axios.get('http://localhost:8080/');
-    setData(response.data);
-    console.log("ShowUser", response)
-  }
+  //DELETE
+  const removeUser = async (id) => {
+    console.log("ID : ****",id)
+    if(window.confirm("Are you sure to delete this user ?")){
+      let url = `http://localhost:8080/delete/${id}`
+      console.log('freeUrl', url)
+      await Axios.delete(url);
+      //toast.success("Contact deleted successfully");
+    }
+    window.location.reload();
+  };
 
   useEffect(() => {
     showUsers();
@@ -52,18 +65,11 @@ function App() {
           <input type="text" onChange= {(e) => {
             setcontactheg(e.target.value);
           }}/>
-          <button onClick={register}> Register </button>
-      </div>
-
-      <div className="login">
-        <h1> Login </h1>
-          <input type="text" placeholder="name ..."/>
-          <input type="text" placeholder="email ..."/>
-          <button> Login </button>
+          <button onClick={register}> Add user </button>
       </div>
 
       <div className="Show">
-        <h1> Show List of users </h1>
+        <h1> List of users </h1>
         <table style={{width: "100%"}}>
           <thead>
             <tr>
@@ -83,9 +89,9 @@ function App() {
                 <td> {item.email} </td>
                 <td> {item.contact} </td>
                 <td> 
-                  <button> Edit </button>
-                  <button> Delete </button>
                   <button> View </button>
+                  <button> Edit </button>
+                  <button onClick={() => removeUser(item.id)}> Delete </button>
                 </td>
               </tr>
               )

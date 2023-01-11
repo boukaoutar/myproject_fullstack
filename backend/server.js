@@ -24,24 +24,24 @@ connection.connect((err) => {
 });
 
 //CREATE
-app.post('/register', (req, res) => {
-    const name = req.body.name;
-    const email = req.body.email;
-    const contact = req.body.contact;
+app.post('/user', (req, res) => {
+    const body = req.body
+    addUser(body,res);
+});
 
+function addUser(body,res)
+{
+    let {name,email,contact} = body
     connection.query(" INSERT INTO users (name, email,contact) VALUES (?,?,?)",[name,email,contact], 
     (err,result) => {
         console.log(err);
+        console.log("RESULT POST : ",result)
+        res.status(200).json(result)
     })
-
-    getUsers(res);
-});
-
+}
 //READ
 app.get('/', (req, res) => {
-   
-    getUsers(res);
-    
+    getUsers(res); 
 })
 
 function getUsers(res){
@@ -49,8 +49,25 @@ function getUsers(res){
     connection.query(query,
     (err, result) => {
         console.log("ERROR : ",err);
-        console.log("RESULT : ",result)
+        console.log("RESULT GET : ",result)
         res.status(200).json(result)
+    })
+}
+
+app.delete('/delete/:id', (req, res) => {
+     let params = req.params;
+     console.log("Bodyy : ", req.params.id)
+     deleteUser(params);
+     res.status(200).json({success: true, message: deleteUser(params)});
+});
+
+function deleteUser(params){
+   
+    let {id} = params
+    connection.query(`DELETE FROM users WHERE 1 = 1 and id = ${id}`,
+    (err,result) => {
+        console.log(err);
+        console.log("RESULT DELETE: ",result)
     })
 }
 
