@@ -1,11 +1,13 @@
 const express = require("express")
 const mysql = require("mysql2");
 const cors = require("cors");
+const bodyParser = require("body-parser")
 
 const app = express();
 
 app.use(express.json());
 app.use(cors());
+app.use(bodyParser.urlencoded({extended: true}));
 
 const connection = mysql.createConnection({
     user : "root",
@@ -23,15 +25,34 @@ connection.connect((err) => {
 
 //CREATE
 app.post('/register', (req, res) => {
-    const username = req.body.username;
-    const password = req.body.password;
+    const name = req.body.name;
+    const email = req.body.email;
+    const contact = req.body.contact;
 
-    connection.query(" INSERT INTO users (username, password) VALUES (?,?)",[username,password], 
+    connection.query(" INSERT INTO users (name, email,contact) VALUES (?,?,?)",[name,email,contact], 
     (err,result) => {
         console.log(err);
-    }
-    )
+    })
+
+    getUsers(res);
 });
+
+//READ
+app.get('/', (req, res) => {
+   
+    getUsers(res);
+    
+})
+
+function getUsers(res){
+    let query = "SELECT * FROM users";
+    connection.query(query,
+    (err, result) => {
+        console.log("ERROR : ",err);
+        console.log("RESULT : ",result)
+        res.status(200).json(result)
+    })
+}
 
 app.listen(8080, () => {
     console.log("Running the server");
