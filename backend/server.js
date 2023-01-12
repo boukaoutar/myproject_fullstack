@@ -49,20 +49,55 @@ function getUsers(res){
     connection.query(query,
     (err, result) => {
         console.log("ERROR : ",err);
-        console.log("RESULT GET : ",result)
+        //console.log("RESULT GET : ",result)
         res.status(200).json(result)
     })
 }
 
+//UPDATE
+app.get('/get/:id', (req, res) => {
+    let params = req.params;
+    getOneUser(params, res); 
+   
+})
+
+function getOneUser(params, res){
+    let {id} = params
+    connection.query(`SELECT * FROM users WHERE 1 = 1 and id = ${id}`,
+    (err, result) => {
+        console.log("ERROR : ",err);
+        console.log("RESULT GET ONE USER  : ",result)
+        res.status(200).json(result)
+    })
+}
+app.put('/update/:id', (req, res) => {
+    let body = req.body;
+    let params = req.params
+    updateUser(params, body, res);
+    
+})
+
+function updateUser(params, body, res) {
+    let {name, email, contact} = body;
+    let {id} = params
+
+    connection.query(`UPDATE users SET name = '${name}', email = '${email}',contact = '${contact}' WHERE id = '${id}'`,
+    (err,result) => {
+        console.log(err);
+        console.log("RESULT UPDATE: ",result)
+        res.status(200).json(result)
+    })
+}
+
+//DELETE
 app.delete('/delete/:id', (req, res) => {
-     let params = req.params;
-     console.log("Bodyy : ", req.params.id)
-     deleteUser(params);
-     res.status(200).json({success: true, message: deleteUser(params)});
+    let params = req.params;
+    //console.log("Bodyy : ", req.params.id)
+    deleteUser(params);
+     
 });
 
 function deleteUser(params){
-   
     let {id} = params
     connection.query(`DELETE FROM users WHERE 1 = 1 and id = ${id}`,
     (err,result) => {
